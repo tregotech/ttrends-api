@@ -25,15 +25,19 @@ class Trends:
     def api_call_related(self, kw_list):
         time.sleep(self.SLEEPTIME)
         self.pytrend.build_payload(kw_list, **self.params)
-        related_json = self.pytrend.related_queries()
-        df_list = []
-        for kw in related_json.keys():
-            for cat in ["top", "rising"]:
-                tmp = related_json[kw][cat]
-                tmp["cat"] = cat
-                tmp["kw"] = kw
-                df_list += [tmp]
-        return pd.concat(df_list, axis=0).reset_index(drop=True)
+        try:
+            related_json = self.pytrend.related_queries()
+            df_list = []
+            for kw in related_json.keys():
+                for cat in ["top", "rising"]:
+                    tmp = related_json[kw][cat]
+                    tmp["cat"] = cat
+                    tmp["kw"] = kw
+                    df_list += [tmp]
+            result = pd.concat(df_list, axis=0).reset_index(drop=True)
+        except:
+            result = pd.DataFrame()
+        return result
 
     def api_call_trends(self, kw_list):
         time.sleep(self.SLEEPTIME)
@@ -41,12 +45,25 @@ class Trends:
         return self.pytrend.interest_over_time().iloc[:, :-1]
 
     def get_trends(self, kw_list):
+        '''
+        main function for getting trends after initialising Trends class
+        '''
         if len(kw_list) > 5:
             result = self.chunkwise_trends(kw_list)
             result = self.improve_signal()
         else:
             result = self.api_call_trends(kw_list)
         return result
+
+    def get_top_related(self, kw_list):
+        '''
+        main function for getting related terms after initialising Trends class
+        '''
+        df = self.chunkwise_related(kw_list)
+        if not sum(df.shape) == 0:
+            return sorted(list(set(df.loc[df.cat=='top']['query'])))
+        else:
+            return []
 
     def improve_signal(self):
         return self.chunkwise_trends(self.KW_LIST_REORDERED)
@@ -94,8 +111,15 @@ class Trends:
         self.KW_LIST_REORDERED = df_out.columns.tolist()
         return df_out
 
+    def chunkwise_related(self, kw_list):
+        STEP = self.THRESH
+        df_list = []
+        for n in tqdm.tqdm(range(0, len(kw_list), STEP)):
+            df_list += [self.api_call_related(kw_list[n : n + self.THRESH])]
+        return pd.concat(df_list,axis=0)
 
-def lambda_handler(event, context):
+
+def trends_lambda_handler(event, context):
     """Sample pure Lambda function
 
     Parameters
@@ -129,6 +153,45 @@ def lambda_handler(event, context):
         "body": json.dumps(
             {
                 "message": json.loads(result.to_json(orient="table")),
+                # "location": ip.text.replace("\n", "")
+            }
+        ),
+    }
+
+def related_lambda_handler(event, context):
+    """Sample pure Lambda function
+
+    Parameters
+    ----------
+    event: dict, required
+        API Gateway Lambda Proxy Input Format
+
+        Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
+
+    context: object, required
+        Lambda Context runtime methods and attributes
+
+        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
+
+    Returns
+    ------
+    API Gateway Lambda Proxy Output Format: dict
+
+        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
+    """
+
+    data = event["body"]
+    kw_list = ast.literal_eval(data)
+
+    # get trends
+    trend = Trends(geo="GB", years=5)
+    result = trend.get_top_related(kw_list)
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps(
+            {
+                "message": json.dumps(result),
                 # "location": ip.text.replace("\n", "")
             }
         ),
