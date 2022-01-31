@@ -13,7 +13,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: ttrends/
-      Handler: app.lambda_handler
+      Handler: app.trends_lambda_handler
       Runtime: python3.9
       Architectures:
         - x86_64
@@ -24,12 +24,27 @@ Resources:
             Path: /trends
             Method: post
 
+  GetRelatedFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ttrends/
+      Handler: app.related_lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        Ttrends:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /related
+            Method: post
+
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   TtrendsApi:
-    Description: "API Gateway endpoint URL for Prod stage for Get Trends function"
+    Description: "API Gateway endpoint URL for Prod stage for Get Trends & Get Related functions"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/trends/"
   GetTrendsFunction:
     Description: "Get Trends Lambda Function ARN"
@@ -37,3 +52,9 @@ Outputs:
   GetTrendsFunctionIamRole:
     Description: "Implicit IAM Role created for Get Trends function"
     Value: !GetAtt GetTrendsFunctionRole.Arn
+  GetRelatedFunction:
+    Description: "Get Related Lambda Function ARN"
+    Value: !GetAtt GetRelatedFunction.Arn
+  GetRelatedFunctionIamRole:
+    Description: "Implicit IAM Role created for Get Related function"
+    Value: !GetAtt GetRelatedFunctionRole.Arn
