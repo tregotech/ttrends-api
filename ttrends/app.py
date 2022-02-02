@@ -20,7 +20,7 @@ class Trends:
             "timeframe": "today {}-y".format(years),
         }
         self.THRESH = 5  # pytrends api takes max 5 words
-        self.SLEEPTIME = 2  # wait 2 seconds between API calls
+        self.SLEEPTIME = 0  # wait 2 seconds between API calls
 
     def api_call_related(self, kw_list):
         time.sleep(self.SLEEPTIME)
