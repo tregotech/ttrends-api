@@ -1,11 +1,13 @@
 # ttrends-api
 
-This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
+This project contains source code and supporting files for serverless application (Lambda Function & API Gateway) for [Ttrends](https://github.com/tregotech/ttrends) deployed with AWS SAM CLI.
 
 - ttrends - Code for the application's Lambda function.
-- events - Invocation events that you can use to invoke the function.
-- tests - Unit tests for the application code. 
 - template.yaml - A template that defines the application's AWS resources.
+
+
+The front end can be found [here](https://github.com/tregotech/ttrends-streamlit).
+
 
 
 ## Deploy the application
@@ -86,18 +88,6 @@ ttrends-api$ sam logs -n GetTrendsFunction --stack-name ttrends-api --tail
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
 
-## Tests
-
-Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
-
-```bash
-ttrends-api$ pip install -r tests/requirements.txt --user
-# unit test
-ttrends-api$ python -m pytest tests/unit -v
-# integration test, requiring deploying the stack first.
-# Create the env variable AWS_SAM_STACK_NAME with the name of the stack we are testing
-ttrends-api$ AWS_SAM_STACK_NAME=<stack-name> python -m pytest tests/integration -v
-```
 
 ## Cleanup
 
@@ -106,9 +96,3 @@ To delete the sample application that you created, use the AWS CLI. Assuming you
 ```bash
 aws cloudformation delete-stack --stack-name ttrends-api
 ```
-
-## Resources
-
-See the [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) for an introduction to SAM specification, the SAM CLI, and serverless application concepts.
-
-Next, you can use AWS Serverless Application Repository to deploy ready to use Apps that go beyond hello world samples and learn how authors developed their applications: [AWS Serverless Application Repository main page](https://aws.amazon.com/serverless/serverlessrepo/)
