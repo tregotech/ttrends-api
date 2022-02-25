@@ -12,7 +12,7 @@ Resources:
   GetTrendsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: ttrends/
+      CodeUri: src/
       Handler: app.trends_lambda_handler
       Runtime: python3.9
       Architectures:
@@ -27,7 +27,7 @@ Resources:
   GetRelatedFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: ttrends/
+      CodeUri: src/
       Handler: app.related_lambda_handler
       Runtime: python3.9
       Architectures:
