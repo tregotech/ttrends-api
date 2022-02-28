@@ -16,7 +16,7 @@ class Trends:
             "timeframe": "today {}-y".format(years),
         }
         self.THRESH = 5  # pytrends api takes max 5 words
-        self.SLEEPTIME = 2  # wait 2 seconds between API calls
+        self.SLEEPTIME = 0  # wait 0 seconds between API calls
 
     def api_call_related(self, kw_list):
         time.sleep(self.SLEEPTIME)
@@ -99,7 +99,7 @@ class Trends:
 
             return rescaled
 
-        STEP = self.THRESH - 2
+        STEP = self.THRESH - 1
         df_list = []
         for n in tqdm.tqdm(range(0, len(kw_list), STEP)):
             df_list += [self.api_call_trends(kw_list[n : n + self.THRESH])]
